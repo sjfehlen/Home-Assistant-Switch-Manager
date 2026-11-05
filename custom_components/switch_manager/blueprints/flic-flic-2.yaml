@@ -1,0 +1,31 @@
+name: Flic 2
+service: Flic
+event_type: event_entity
+identifier_key: device_id
+info: Flic integration (flic_button). Identifier is the Home Assistant device id of the button. Press the button to discover it. Short presses are reported after the double-click timeout.
+buttons:
+  - x: 0
+    y: 0
+    width: 100
+    height: 100
+    actions:
+      - title: press
+        conditions:
+          - key: event_type
+            value: click
+      - title: press 2x
+        conditions:
+          - key: event_type
+            value: double_click
+      - title: hold
+        conditions:
+          - key: event_type
+            value: hold
+      - title: button down
+        conditions:
+          - key: event_type
+            value: down
+      - title: button up
+        conditions:
+          - key: event_type
+            value: up
