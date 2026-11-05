@@ -4,11 +4,7 @@ event_type: event_entity
 identifier_key: device_id
 info: Flic integration (flic_button), Default or Continuous push twist mode. Identifier is the Home Assistant device id of the Twist. Selector mode exposes different event types.
 buttons:
-  - x: 0
-    y: 0
-    width: 100
-    height: 100
-    actions:
+  - actions:
       - title: press
         conditions:
           - key: event_type

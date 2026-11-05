@@ -25,7 +25,7 @@ We're looking for community input on what to build next! Vote by opening an [iss
 | Feature | Description | Status |
 |---------|-------------|--------|
 | **Matter support** | Generic event-entity connection type so Matter remotes (IKEA BILRESA incl. scroll wheel, and others) can be used like any other switch ([#46](https://github.com/macpit/Home-Assistant-Switch-Manager/issues/46), [#51](https://github.com/macpit/Home-Assistant-Switch-Manager/issues/51), [PR #59](https://github.com/macpit/Home-Assistant-Switch-Manager/pull/59)) | **Done in v5.0.0** — `event_entity` connection type, IKEA BILRESA dual button and scroll wheel blueprints |
-| **Flic support** | Flic buttons from the core [Flic integration](https://www.home-assistant.io/integrations/flic_button) via `event_entity` blueprints | **Done in v5.4.0** — Flic 2 and Flic Twist (Default/Continuous mode) blueprints; Flic Duo and Twist Selector mode not yet covered |
+| **Flic support** | Flic buttons from the core [Flic integration](https://www.home-assistant.io/integrations/flic_button) via `event_entity` blueprints | **Done in v5.4.1** — Flic 2 and Flic Twist (Default/Continuous mode) blueprints; Flic Duo and Twist Selector mode not yet covered |
 | Visual Blueprint Editor | Create blueprints in the GUI instead of writing YAML by hand ([PR #39](https://github.com/macpit/Home-Assistant-Switch-Manager/pull/39)) | In progress |
 | Action Test Buttons in switch config | Fire a single configured action from the switch view ([#50](https://github.com/macpit/Home-Assistant-Switch-Manager/issues/50)) | Planned |
 | Switch Groups | Apply one configuration to several physical switches ([#45](https://github.com/macpit/Home-Assistant-Switch-Manager/issues/45)) | Idea |
