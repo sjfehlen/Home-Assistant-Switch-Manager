@@ -12,7 +12,11 @@ info: >-
   dropped. For an absolute level instead, use a template such as
   brightness_pct: "{{ data.mode_percentage | int }}" or
   volume_level: "{{ data.mode_percentage / 100 }}" (mode_percentage is the Twist's
-  own 0-100 position). The "twist (level)" and "push-twist (level)" actions fire on
+  own 0-100 position).
+  Hold and push-twist overlap: holding the button to push-twist fires hold first.
+  To use only one, set a switch variable (top right menu, YAML) mode: push_twist
+  to disable the hold action, or mode: hold to disable the push-twist actions.
+  With no variable set both are active. The "twist (level)" and "push-twist (level)" actions fire on
   a turn in either direction, so one action with that template covers both.
 buttons:
   - actions:
@@ -25,9 +29,7 @@ buttons:
           - key: event_type
             value: double_click
       - title: hold
-        conditions:
-          - key: event_type
-            value: hold
+        conditions: "{{ data.event_type == 'hold' and (data.variables or {}).get('mode') != 'push_twist' }}"
       - title: button down
         conditions:
           - key: event_type
@@ -47,16 +49,12 @@ buttons:
             value: twist_decrement
         scale_field: brightness_step_pct
       - title: push-twist clockwise
-        conditions:
-          - key: event_type
-            value: push_twist_increment
+        conditions: "{{ data.event_type == 'push_twist_increment' and (data.variables or {}).get('mode') != 'hold' }}"
         scale_field: brightness_step_pct
       - title: push-twist counter-clockwise
-        conditions:
-          - key: event_type
-            value: push_twist_decrement
+        conditions: "{{ data.event_type == 'push_twist_decrement' and (data.variables or {}).get('mode') != 'hold' }}"
         scale_field: brightness_step_pct
       - title: twist (level)
         conditions: "{{ data.event_type in ['twist_increment', 'twist_decrement'] }}"
       - title: push-twist (level)
-        conditions: "{{ data.event_type in ['push_twist_increment', 'push_twist_decrement'] }}"
+        conditions: "{{ (data.event_type in ['push_twist_increment', 'push_twist_decrement']) and (data.variables or {}).get('mode') != 'hold' }}"
