@@ -120,6 +120,11 @@ def presses_from_event( attributes ) -> int:
     if isinstance(count, int) and not isinstance(count, bool) and count > 0:
         return count
     event_type = attributes.get('event_type')
+    # Flic Twist reports how many detents a (fast) turn crossed, direction is in event_type
+    if isinstance(event_type, str) and 'twist' in event_type:
+        crossings = attributes.get('detent_crossings')
+        if isinstance(crossings, int) and not isinstance(crossings, bool) and crossings > 0:
+            return crossings
     if isinstance(event_type, str) and event_type.startswith('multi_press_'):
         tail = event_type.rsplit('_', 1)[-1]
         if tail.isdigit():

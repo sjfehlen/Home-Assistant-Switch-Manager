@@ -2,7 +2,17 @@ name: Flic Twist
 service: Flic
 event_type: event_entity
 identifier_key: device_id
-info: Flic integration (flic_button), Default or Continuous push twist mode. Identifier is the Home Assistant device id of the Twist. Selector mode exposes different event types.
+info: >-
+  Flic integration (flic_button), Default or Continuous push twist mode. Identifier is the Home Assistant device id of the Twist. Selector mode exposes different event types.
+  Turning: add a single light.turn_on with brightness_step_pct (e.g. 5 for
+  clockwise, -5 for counter-clockwise). A fast turn crossing several detents is
+  one event and the step is multiplied by the detent count (data.detent_crossings).
+  Sequences without that field (media_player.volume_up, input_number.increment, ...)
+  run once per detent instead. Set the action mode to queued so slow turns are not
+  dropped. For an absolute level instead, use a template such as
+  brightness_pct: "{{ data.mode_percentage | int }}" or
+  volume_level: "{{ data.mode_percentage / 100 }}" (mode_percentage is the Twist's
+  own 0-100 position).
 buttons:
   - actions:
       - title: press
@@ -29,15 +39,19 @@ buttons:
         conditions:
           - key: event_type
             value: twist_increment
+        scale_field: brightness_step_pct
       - title: twist counter-clockwise
         conditions:
           - key: event_type
             value: twist_decrement
+        scale_field: brightness_step_pct
       - title: push-twist clockwise
         conditions:
           - key: event_type
             value: push_twist_increment
+        scale_field: brightness_step_pct
       - title: push-twist counter-clockwise
         conditions:
           - key: event_type
             value: push_twist_decrement
+        scale_field: brightness_step_pct
