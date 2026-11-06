@@ -12,7 +12,8 @@ info: >-
   dropped. For an absolute level instead, use a template such as
   brightness_pct: "{{ data.mode_percentage | int }}" or
   volume_level: "{{ data.mode_percentage / 100 }}" (mode_percentage is the Twist's
-  own 0-100 position).
+  own 0-100 position). The "twist (level)" and "push-twist (level)" actions fire on
+  a turn in either direction, so one action with that template covers both.
 buttons:
   - actions:
       - title: press
@@ -55,3 +56,7 @@ buttons:
           - key: event_type
             value: push_twist_decrement
         scale_field: brightness_step_pct
+      - title: twist (level)
+        conditions: "{{ data.event_type in ['twist_increment', 'twist_decrement'] }}"
+      - title: push-twist (level)
+        conditions: "{{ data.event_type in ['push_twist_increment', 'push_twist_decrement'] }}"
