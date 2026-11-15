@@ -170,6 +170,10 @@ Blueprints pair actions automatically by title (`hold` → `hold (released)`, or
 
 > Sometimes you may want certain buttons or actions handled by the devices default handler. For example, a Zigbee device may already be bound to a certain light which also imo has better response, reliability and stability. To remind you of this, you could add a stop action with a description of why the button shouldn't be changed and being handled somewhere else. Then for other actions that aren't handled elsewhere then you can handle them with this component. It's also fine to allow an external handler to handle the button push aswell as this component so a button could turn on the light handled via Zigbee and the component could start playing music based on the same switch action.
 
+#### Rooms and grouping
+
+Assign a switch to a Home Assistant area from the switch editor menu (**Room**). The switch list then has a sortable **Room** column, the search box also matches room names, and the **Group by room** toggle next to the search box groups the list under room headers (rooms alphabetical, switches without a room last). The chosen sort order still applies inside each room, and the toggle is remembered in the browser. In YAML/storage the room is the switch's optional `area` (an area id); switches without one behave exactly as before.
+
 #### Variables
 
 You can assign variables to the switch from the top right menu, these variables can be access through the blueprint conditions or action sequences.

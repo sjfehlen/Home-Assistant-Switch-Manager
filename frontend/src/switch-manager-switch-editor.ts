@@ -37,6 +37,8 @@ const mdiRename =
   "M18,17H10.5L12.5,15H18M6,17V14.5L13.88,6.65C14.07,6.45 14.39,6.45 14.59,6.65L16.35,8.41C16.55,8.61 16.55,8.92 16.35,9.12L8.47,17M19,3H5C3.89,3 3,3.89 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5C21,3.89 20.1,3 19,3Z";
 const mdiRotate =
   "M16.89,15.5L18.31,16.89C19.21,15.73 19.76,14.39 19.93,13H17.91C17.77,13.87 17.43,14.72 16.89,15.5M13,17.9V19.92C14.39,19.75 15.74,19.21 16.9,18.31L15.46,16.87C14.71,17.41 13.87,17.76 13,17.9M19.93,11C19.76,9.61 19.21,8.27 18.31,7.11L16.89,8.53C17.43,9.28 17.77,10.13 17.91,11M15.55,5.55L11,1V4.07C7.06,4.56 4,7.92 4,12C4,16.08 7.05,19.44 11,19.93V17.91C8.16,17.43 6,14.97 6,12C6,9.03 8.16,6.57 11,6.09V10L15.55,5.55Z";
+const mdiHome =
+  "M10,20V14H14V20H19V12H22L12,3L2,12H5V20H10Z";
 const mdiVariables =
   "M8,3A2,2 0 0,0 6,5V9A2,2 0 0,1 4,11H3V13H4A2,2 0 0,1 6,15V19A2,2 0 0,0 8,21H10V19H8V14A2,2 0 0,0 6,12A2,2 0 0,0 8,10V5H10V3M16,3A2,2 0 0,1 18,5V9A2,2 0 0,0 20,11H21V13H20A2,2 0 0,0 18,15V19A2,2 0 0,1 16,21H14V19H16V14A2,2 0 0,1 18,12A2,2 0 0,1 16,10V5H14V3H16Z";
 const mdiCopy =
@@ -107,6 +109,10 @@ export class SwitchManagerSwitchEditor extends LitElement {
           <div class="menu-item" @click=${() => this._showRenameDialog()}>
             <ha-svg-icon .path=${mdiRename}></ha-svg-icon>
             Rename
+          </div>
+          <div class="menu-item" @click=${this._showRoomDialog}>
+            <ha-svg-icon .path=${mdiHome}></ha-svg-icon>
+            Room
           </div>
           <div class="menu-item" @click=${this._rotate}>
             <ha-svg-icon .path=${mdiRotate}></ha-svg-icon>
@@ -761,6 +767,23 @@ export class SwitchManagerSwitchEditor extends LitElement {
       }
     );
   }
+
+  private _showRoomDialog = () => {
+    showDialog(
+      this,
+      "switch-manager-dialog-set-room",
+      () => import("./dialogs/set-room"),
+      {
+        config: this.config,
+        areas: this.hass.areas,
+        update: (data: { area: string | null }) => {
+          this.config!.area = data.area;
+          this._dirty = true;
+          this.requestUpdate();
+        },
+      }
+    );
+  };
 
   private _showCopyFromDialog() {
     showDialog(

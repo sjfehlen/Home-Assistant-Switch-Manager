@@ -22,6 +22,7 @@ export interface HomeAssistant {
   loadFragmentTranslation: (fragment: string) => void;
   loadBackendTranslation: (category: string) => void;
   language: string;
+  areas?: Record<string, { area_id: string; name: string }>;
 }
 
 export interface Route {
@@ -92,6 +93,7 @@ export interface SwitchConfig {
   valid_blueprint: boolean;
   is_mismatch: boolean;
   rotate: number;
+  area?: string | null;
   buttons: SwitchConfigButton[];
   variables?: Record<string, unknown>;
   _error?: string;
@@ -106,6 +108,7 @@ export interface SwitchListItem {
   name: string;
   service: string;
   type: string;
+  area: string;
   actions: string;
 }
 
