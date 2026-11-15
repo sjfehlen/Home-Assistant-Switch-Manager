@@ -1,0 +1,19 @@
+name: Flic 2 (Flic Hub MQTT)
+service: Flic
+event_type: mqtt
+mqtt_topic_format: flic/+/action
+info: Flic Hub with the flic2hass module publishing to MQTT. The identifier is the button's topic (flic/<button id>/action) - press the button to discover it. Short presses are reported after the double-click timeout. For buttons paired directly to Home Assistant use the Flic 2 blueprint instead.
+buttons:
+  - actions:
+      - title: press
+        conditions:
+          - key: payload
+            value: click
+      - title: press 2x
+        conditions:
+          - key: payload
+            value: double_click
+      - title: hold
+        conditions:
+          - key: payload
+            value: hold
