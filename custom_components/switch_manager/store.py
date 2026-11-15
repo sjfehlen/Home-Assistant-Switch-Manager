@@ -18,6 +18,7 @@ class SwitchManagerManagedSwitchData:
     identifier = attr.ib(type=str, default=None)
     variables = attr.ib(type=dict, default=None)
     rotate = attr.ib(type=int, default=0)
+    area = attr.ib(type=str, default=None)
     buttons = attr.ib(type=list, default=[])
 
     def set_from_managed_switch_config( self, config: ManagedSwitchConfig ):

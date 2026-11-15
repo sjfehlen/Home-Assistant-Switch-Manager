@@ -763,6 +763,7 @@ class ManagedSwitchConfig:
         self.is_mismatch: bool
         self.variables: dict = config.get('variables')
         self.rotate: int = config.get('rotate', 0)
+        self.area: str | None = config.get('area') or None
         self.buttons: list[ManagedSwitchConfigButton] = []
         self.enabled: bool = config.get('enabled', True)
         self.button_last_state: list = []
@@ -775,6 +776,7 @@ class ManagedSwitchConfig:
         self.identifier = config.get('identifier')
         self.variables: dict = config.get('variables')
         self.rotate: int = config.get('rotate', 0)
+        self.area: str | None = config.get('area') or None
         self.button_last_state = []
         self.buildButtons( config.get('buttons') )
         

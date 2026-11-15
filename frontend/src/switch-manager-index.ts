@@ -49,6 +49,7 @@ export class SwitchManagerIndex extends LitElement {
   @state() private _filter = "";
   @state() private _sortColumn = "name";
   @state() private _sortDirection: "asc" | "desc" = "asc";
+  @state() private _groupByRoom = false;
 
   connectedCallback() {
     super.connectedCallback();
@@ -58,8 +59,15 @@ export class SwitchManagerIndex extends LitElement {
       );
       if (saved.column) this._sortColumn = saved.column;
       if (saved.direction) this._sortDirection = saved.direction;
+      this._groupByRoom = !!saved.groupByRoom;
     } catch {}
     this._populateSwitches();
+  }
+
+  // Room name for a switch; areas renamed in Home Assistant show up straight away.
+  private _room(item: SwitchListItem): string {
+    if (!item.area) return "";
+    return this.hass.areas?.[item.area]?.name || item.area;
   }
 
   private get _filteredSortedData(): SwitchListItem[] {
@@ -71,20 +79,52 @@ export class SwitchManagerIndex extends LitElement {
         (item) =>
           item.name.toLowerCase().includes(f) ||
           item.service.toLowerCase().includes(f) ||
-          item.type.toLowerCase().includes(f)
+          item.type.toLowerCase().includes(f) ||
+          this._room(item).toLowerCase().includes(f)
       );
     }
 
     const col = this._sortColumn;
     const dir = this._sortDirection === "asc" ? 1 : -1;
-    return [...items].sort((a, b) => {
+    const value = (item: SwitchListItem) =>
+      col === "area"
+        ? this._room(item).toLowerCase()
+        : String((item as any)[col] || "").toLowerCase();
+    const sorted = [...items].sort((a, b) => {
       if (col === "enabled") {
         return ((a.enabled ? 1 : 0) - (b.enabled ? 1 : 0)) * dir;
       }
-      const aVal = String((a as any)[col] || "").toLowerCase();
-      const bVal = String((b as any)[col] || "").toLowerCase();
-      return aVal.localeCompare(bVal) * dir;
+      return value(a).localeCompare(value(b)) * dir;
     });
+
+    if (!this._groupByRoom) return sorted;
+
+    // Rooms in alphabetical order with "No room" last; the chosen sort applies inside
+    // each room (Array.sort is stable, so the order above is kept within a group).
+    return sorted.sort((a, b) => {
+      const ra = this._room(a);
+      const rb = this._room(b);
+      if (!ra && !rb) return 0;
+      if (!ra) return 1;
+      if (!rb) return -1;
+      return ra.localeCompare(rb);
+    });
+  }
+
+  private _saveSort() {
+    localStorage.setItem(
+      "switchManagerSort",
+      JSON.stringify({
+        column: this._sortColumn,
+        direction: this._sortDirection,
+        groupByRoom: this._groupByRoom,
+      })
+    );
+  }
+
+  private _toggleGroupByRoom() {
+    this._groupByRoom = !this._groupByRoom;
+    this._saveSort();
   }
 
   private _toggleSort(column: string) {
@@ -94,13 +134,7 @@ export class SwitchManagerIndex extends LitElement {
       this._sortColumn = column;
       this._sortDirection = "asc";
     }
-    localStorage.setItem(
-      "switchManagerSort",
-      JSON.stringify({
-        column: this._sortColumn,
-        direction: this._sortDirection,
-      })
-    );
+    this._saveSort();
   }
 
   private _sortIcon(column: string) {
@@ -156,6 +190,12 @@ export class SwitchManagerIndex extends LitElement {
                   this._filter = (e.target as HTMLInputElement).value;
                 }}
               />
+              <button
+                class="group-toggle ${this._groupByRoom ? "active" : ""}"
+                @click=${() => this._toggleGroupByRoom()}
+              >
+                Group by room
+              </button>
             </div>
             <div class="table">
               <div class="thead">
@@ -169,6 +209,12 @@ export class SwitchManagerIndex extends LitElement {
                   </div>
                   ${!this.narrow
                     ? html`
+                        <div
+                          class="th col-room sortable"
+                          @click=${() => this._toggleSort("area")}
+                        >
+                          Room ${this._sortIcon("area")}
+                        </div>
                         <div
                           class="th col-service sortable"
                           @click=${() => this._toggleSort("service")}
@@ -194,7 +240,8 @@ export class SwitchManagerIndex extends LitElement {
                         : "No matches found"}
                     </div>`
                   : data.map(
-                      (item) => html`
+                      (item, i) => html`
+                        ${this._groupHeader(data, i)}
                         <div
                           class="tr row-item"
                           @click=${() => this._editSwitch(item.switch_id)}
@@ -227,6 +274,9 @@ export class SwitchManagerIndex extends LitElement {
                           </div>
                           ${!this.narrow
                             ? html`
+                                <div class="td col-room">
+                                  ${this._room(item)}
+                                </div>
                                 <div class="td col-service">
                                   ${item.service}
                                 </div>
@@ -265,6 +315,17 @@ export class SwitchManagerIndex extends LitElement {
     `;
   }
 
+  // Header row shown above the first switch of each room when grouping is on.
+  private _groupHeader(data: SwitchListItem[], index: number) {
+    if (!this._groupByRoom) return nothing;
+    const room = this._room(data[index]);
+    if (index > 0 && this._room(data[index - 1]) === room) return nothing;
+    const count = data.filter((item) => this._room(item) === room).length;
+    return html`<div class="group-header">
+      ${room || "No room"} <span class="group-count">${count}</span>
+    </div>`;
+  }
+
   private _populateSwitches() {
     this.hass
       .callWS<ConfigsResponse>({ type: wsType("configs") })
@@ -283,6 +344,7 @@ export class SwitchManagerIndex extends LitElement {
             name: sw.name,
             service: bp.service || "",
             type: bp.name || "",
+            area: sw.area || "",
             actions: sw.id,
           });
         });
@@ -523,6 +585,42 @@ export class SwitchManagerIndex extends LitElement {
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
+    }
+    .col-room {
+      width: 15%;
+      flex-shrink: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .group-toggle {
+      flex-shrink: 0;
+      padding: 4px 12px;
+      border: 1px solid var(--divider-color);
+      border-radius: 16px;
+      background: none;
+      color: var(--secondary-text-color);
+      font: inherit;
+      font-size: 0.85em;
+      cursor: pointer;
+    }
+    .group-toggle.active {
+      border-color: var(--primary-color);
+      color: var(--primary-color);
+    }
+    .group-header {
+      padding: 8px 16px;
+      background: var(--secondary-background-color);
+      border-bottom: 1px solid var(--divider-color);
+      color: var(--secondary-text-color);
+      font-size: 0.85em;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .group-count {
+      margin-left: 6px;
+      opacity: 0.7;
     }
     .col-actions {
       width: 48px;

@@ -88,6 +88,7 @@ SWITCH_MANAGER_CONFIG_SCHEMA = vol.Schema({
     vol.Required('blueprint'): cv.string,
     vol.Required('identifier'): cv.string,
     vol.Optional('variables'): vol.Any(None, dict),
+    vol.Optional('area'): vol.Any(None, cv.string),
     vol.Required('buttons'): vol.All(cv.ensure_list, [SWITCH_MANAGER_CONFIG_BUTTON_SCHEMA])
 }, extra=vol.ALLOW_EXTRA)
 

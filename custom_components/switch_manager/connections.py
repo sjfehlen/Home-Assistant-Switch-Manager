@@ -246,6 +246,7 @@ async def async_setup_connections( hass ):
             'enabled': True,
             'variables': dict(source.variables) if source.variables else None,
             'rotate': source.rotate,
+            'area': source.area,
             'buttons': buttons,
         }
 
